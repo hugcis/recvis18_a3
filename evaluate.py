@@ -5,7 +5,7 @@ import PIL.Image as Image
 
 import torch
 
-from model import Net
+from model import model_new
 
 parser = argparse.ArgumentParser(description='RecVis A3 evaluation script')
 parser.add_argument('--data', type=str, default='bird_dataset', metavar='D',
@@ -19,7 +19,7 @@ args = parser.parse_args()
 use_cuda = torch.cuda.is_available()
 
 state_dict = torch.load(args.model)
-model = Net()
+model = model_new
 model.load_state_dict(state_dict)
 model.eval()
 if use_cuda:
@@ -43,7 +43,7 @@ output_file = open(args.outfile, "w")
 output_file.write("Id,Category\n")
 for f in tqdm(os.listdir(test_dir)):
     if 'jpg' in f:
-        data = data_transforms(pil_loader(test_dir + '/' + f))
+        data = data_transforms['val'](pil_loader(test_dir + '/' + f))
         data = data.view(1, data.size(0), data.size(1), data.size(2))
         if use_cuda:
             data = data.cuda()

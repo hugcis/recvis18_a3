@@ -5,6 +5,7 @@ import torch.nn as nn
 import torch.optim as optim
 from torchvision import datasets
 from torch.autograd import Variable
+from tensorboardX import SummaryWriter
 
 # Training settings
 parser = argparse.ArgumentParser(description='RecVis A3 training script')
@@ -37,28 +38,34 @@ from data import data_transforms
 
 train_loader = torch.utils.data.DataLoader(
     datasets.ImageFolder(args.data + '/train_images',
-                         transform=data_transforms),
+                         transform=data_transforms['train']),
     batch_size=args.batch_size, shuffle=True, num_workers=1)
 val_loader = torch.utils.data.DataLoader(
     datasets.ImageFolder(args.data + '/val_images',
-                         transform=data_transforms),
+                         transform=data_transforms['val']),
     batch_size=args.batch_size, shuffle=False, num_workers=1)
 
 # Neural network and optimizer
 # We define neural net in model.py so that it can be reused by the evaluate.py script
-from model import Net
-model = Net()
+from model import model_new
+model = model_new
+
 if use_cuda:
     print('Using GPU')
     model.cuda()
 else:
     print('Using CPU')
 
-optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
+optimizer = optim.Adadelta(model.parameters())
+niter = 0
+writer = SummaryWriter()
+
 
 def train(epoch):
+    global niter
     model.train()
     for batch_idx, (data, target) in enumerate(train_loader):
+        niter += 1
         if use_cuda:
             data, target = data.cuda(), target.cuda()
         optimizer.zero_grad()
@@ -71,6 +78,8 @@ def train(epoch):
             print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
                 epoch, batch_idx * len(data), len(train_loader.dataset),
                 100. * batch_idx / len(train_loader), loss.data.item()))
+
+            writer.add_scalar('data/loss', loss.data.item(), niter)
 
 def validation():
     model.eval()
@@ -99,3 +108,5 @@ for epoch in range(1, args.epochs + 1):
     model_file = args.experiment + '/model_' + str(epoch) + '.pth'
     torch.save(model.state_dict(), model_file)
     print('\nSaved model to ' + model_file + '. You can run `python evaluate.py --model ' + model_file + '` to generate the Kaggle formatted csv file')
+
+writer.close()
