@@ -66,8 +66,13 @@ def train(epoch):
     model.train()
     for batch_idx, (data, target) in enumerate(train_loader):
         niter += 1
+        print(data.shape)
         if use_cuda:
             data, target = data.cuda(), target.cuda()
+
+        if niter == 1: 
+            writer.add_image(data)
+        
         optimizer.zero_grad()
         output = model(data)
         criterion = torch.nn.CrossEntropyLoss(reduction='elementwise_mean')
@@ -79,9 +84,12 @@ def train(epoch):
                 epoch, batch_idx * len(data), len(train_loader.dataset),
                 100. * batch_idx / len(train_loader), loss.data.item()))
 
-            writer.add_scalar('data/loss', loss.data.item(), niter)
+            writer.add_scalar('data/train_loss', loss.data.item(), niter)
+            writer.add_scalar('data/learning_rate', optimizer.state_dict()['param_groups'][0]['lr'], niter)
+        
 
 def validation():
+    global niter
     model.eval()
     validation_loss = 0
     correct = 0
@@ -95,6 +103,8 @@ def validation():
         # get the index of the max log-probability
         pred = output.data.max(1, keepdim=True)[1]
         correct += pred.eq(target.data.view_as(pred)).cpu().sum()
+
+    writer.add_scalar('data/val_loss', validation_loss, niter)
 
     validation_loss /= len(val_loader.dataset)
     print('\nValidation set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(

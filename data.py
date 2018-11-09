@@ -9,6 +9,7 @@ import torchvision.transforms as transforms
 # the training set
 data_transforms = {
     'train': transforms.Compose([
+        transforms.RandomAffine(15, shear=15),
         transforms.RandomResizedCrop(224),
         transforms.RandomHorizontalFlip(),
         transforms.ToTensor(),
