@@ -3,6 +3,7 @@ import os
 import torch
 import torch.nn as nn
 import torch.optim as optim
+import torchvision
 from torchvision import datasets
 from torch.autograd import Variable
 from tensorboardX import SummaryWriter
@@ -44,7 +45,10 @@ val_loader = torch.utils.data.DataLoader(
     datasets.ImageFolder(args.data + '/val_images',
                          transform=data_transforms['val']),
     batch_size=args.batch_size, shuffle=False, num_workers=1)
-
+sample_loader = torch.utils.data.DataLoader(
+    datasets.ImageFolder(args.data + '/train_images',
+                         transform=data_transforms['sample']),
+    batch_size=64, shuffle=True, num_workers=1)
 # Neural network and optimizer
 # We define neural net in model.py so that it can be reused by the evaluate.py script
 from model import model_new
@@ -66,12 +70,8 @@ def train(epoch):
     model.train()
     for batch_idx, (data, target) in enumerate(train_loader):
         niter += 1
-        print(data.shape)
         if use_cuda:
             data, target = data.cuda(), target.cuda()
-
-        if niter == 1: 
-            writer.add_image(data)
         
         optimizer.zero_grad()
         output = model(data)
@@ -110,6 +110,11 @@ def validation():
     print('\nValidation set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
         validation_loss, correct, len(val_loader.dataset),
         100. * correct / len(val_loader.dataset)))
+
+
+if not niter: 
+    batch_idx, (data, target) = next(enumerate(sample_loader))
+    writer.add_image("Batch sample", torchvision.utils.make_grid(data))
 
 
 for epoch in range(1, args.epochs + 1):

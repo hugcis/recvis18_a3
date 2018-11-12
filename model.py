@@ -33,11 +33,7 @@ for param in model.parameters():
     param.requires_grad = False
 
 model.fc = torch.nn.Linear(2048, 20)
-for param in model.layer4[2].conv3.parameters():
-    param.requires_grad = True
-for param in model.layer4[2].bn3.parameters():
-    param.requires_grad = True
-for param in model.layer4[2].relu.parameters():
+for param in model.layer4[2].parameters():
     param.requires_grad = True
 
 model_new = model
