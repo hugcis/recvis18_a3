@@ -60,7 +60,7 @@ if use_cuda:
 else:
     print('Using CPU')
 
-optimizer = optim.Adadelta(model.parameters())
+optimizer = optim.Adam(model.parameters())
 niter = 0
 writer = SummaryWriter()
 

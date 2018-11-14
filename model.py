@@ -28,12 +28,16 @@ class Net(nn.Module):
         x = F.relu(self.fc1(x))
         return self.fc2(x)
 
-model = mod.resnet152(pretrained=True)
+model = mod.vgg16_bn(pretrained=True)
 for param in model.parameters():
     param.requires_grad = False
 
-model.fc = torch.nn.Linear(2048, 20)
-for param in model.layer4[2].parameters():
+model.classifier[6] = torch.nn.Linear(4096, 20)
+for param in model.classifier.parameters():
     param.requires_grad = True
+
+for lay in model.features[40:]:
+    for param in lay.parameters():
+        param.requires_grad = True
 
 model_new = model
