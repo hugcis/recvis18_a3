@@ -9,17 +9,18 @@ import torchvision.transforms as transforms
 # the training set
 data_transforms = {
     'train': transforms.Compose([
-        transforms.ColorJitter(brightness=0.5, contrast=0.5),
-        transforms.RandomAffine(25, shear=25, scale=(0.5, 1.2)),
-        transforms.RandomResizedCrop(224, scale=(0.7, 1)),
+        transforms.ColorJitter(brightness=0.6, contrast=0.6),
+        transforms.RandomAffine(30, shear=30, scale=(0.6, 1.2)),
+        transforms.RandomResizedCrop(224, scale=(0.3, 1)),
         transforms.RandomHorizontalFlip(),
         transforms.ToTensor(),
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     ]),
+    # Create a transformation without normalization for visualization
     'sample': transforms.Compose([
-        transforms.ColorJitter(brightness=0.5, contrast=0.5),
-        transforms.RandomAffine(25, shear=25),
-        transforms.RandomResizedCrop(224, scale=(0.1, 1)),
+        transforms.ColorJitter(brightness=0.6, contrast=0.6),
+        transforms.RandomAffine(30, shear=30, scale=(0.6, 1.2)),
+        transforms.RandomResizedCrop(224, scale=(0.3, 1)),
         transforms.RandomHorizontalFlip(),
         transforms.ToTensor()
     ]),

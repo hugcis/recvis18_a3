@@ -8,6 +8,10 @@ from torchvision import datasets
 from torch.autograd import Variable
 from tensorboardX import SummaryWriter
 
+# Neural network and optimizer
+# We define neural net in model.py so that it can be reused by the evaluate.py script
+from model import model
+
 # Training settings
 parser = argparse.ArgumentParser(description='RecVis A3 training script')
 parser.add_argument('--data', type=str, default='bird_dataset', metavar='D',
@@ -49,10 +53,7 @@ sample_loader = torch.utils.data.DataLoader(
     datasets.ImageFolder(args.data + '/train_images',
                          transform=data_transforms['sample']),
     batch_size=64, shuffle=True, num_workers=1)
-# Neural network and optimizer
-# We define neural net in model.py so that it can be reused by the evaluate.py script
-from model import model_new
-model = model_new
+
 
 if use_cuda:
     print('Using GPU')
@@ -60,7 +61,8 @@ if use_cuda:
 else:
     print('Using CPU')
 
-optimizer = optim.Adam(model.parameters())
+# Chose Adam optimizer
+optimizer = optim.Adam(model.parameters(), lr=args.lr)
 niter = 0
 writer = SummaryWriter()
 
